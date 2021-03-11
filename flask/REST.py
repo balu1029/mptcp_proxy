@@ -1,6 +1,7 @@
 from flask import Flask, json, request
 import dnspython as dns
 import dns.resolver
+import sys
 
 
 resources = []
@@ -89,4 +90,7 @@ def delete_resource(ip):
   return json.dumps(resources)
 
 if __name__ == '__main__':
-    api.run(host="192.168.2.115")
+    if len(sys.argv) > 1:
+      api.run(host=sys.argv[1])
+    else:
+      api.run()
