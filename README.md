@@ -5,7 +5,7 @@ In Rahmen dieses Projekts wird es sich zu nutzen gemacht, dass es eine Implement
 ## 1.2. MPTCP
 Multipath-TCP ist ein Standart der Transportschicht beschrieben in [RFC 6824](https://tools.ietf.org/html/rfc6824). Es beschreibt die logische Zusammenfassungen mehrerer TCP Verbindungen zu einer, um die Bandbreite bestenfalls zu erhöhen. Dabei kann ausgenutzt werden, dass ein Endgerät mehrere verschiedene Netzwerkanbindungen besitzt um somit die Bandbreite der gesamten Verbindung auf annähernd die Summe der Bandbreite der einzelnen Anbindungen zu erhöhen. 
 
-<img src="./res/mptcp.png" width="600">
+<img src="./img/mptcp.png" width="600">
 
 *[Quelle](https://de.wikipedia.org/wiki/Multipath_TCP#/media/Datei:Architecture_des_r%C3%A9seaux_d'acc%C3%A8s_hybrides_avec_Multipath_TCP.png)*  
 
@@ -64,7 +64,7 @@ Die Wahl fiel schlussendlich auf den sogenannten [microsocks](https://github.com
 Ein Auszug aus den Ergebnissen wird hier dargestellt:
 |Ohne Proxy | Mit Proxy|
 |:---------:|:--------:|
-|<img src="./res/no_proxy.png" width="400">|<img src="./res/proxy.png" width="400">|
+|<img src="./img/no_proxy.png" width="400">|<img src="./img/proxy.png" width="400">|
 
 In dieser Stichprobe ist zu sehen, dass die CPU Auslastung sehr schwankend ist, aber mit aktivem Proxy kaum erhöht ist. Die Übertragungsrate ist in beiden Fällen in etwa bei 50Mbps, was der Bandbreite des Anschlusses entspricht. Durch die Messungen wurde festgestellt, dass durch die Verwendung des Proxys kein Einbruch der Verbindungsgeschwindigkeit merkbar ist. Auch die CPU Auslastung wird durch die Verwendung kaum erhöht.
 
