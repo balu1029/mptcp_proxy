@@ -10,7 +10,7 @@ Multipath-TCP ist ein Standart der Transportschicht beschrieben in [RFC 6824](ht
 Die Grafik zeigt einen beispielhaften Aufbau einer *MPTCP-Verbindung* über DSL und LTE zum selben Server. Hier könnte also zum Beispiel eine Datei über beide Interfaces übertragen werden. 
 
 ## 1.3. Idee
-Um die Problematik mit den unterschiedlichen Betriebssystemen zu umgehen, soll hier ein Socks-Proxy so angepasst werden, dass er anhand einer Konfigurationsdatei die Socket Einstellungen anpasst. Es müssen also alle IP-Adressen der Webseiten in die Datei geschrieben werden, zu denen man eine *MPTCP-Verbindung* aufbauen möchte.
+damit nicht auf jedem Endgerät einen Multipath-TCP Kernel installiert werden muss um eine *MPTCP-Verbindung* aufzubauen, soll hier ein Socks-Proxy verwendet werden, der auf einem Linux Betriebssystem mit entsprechend installiertem MPTCP-Kernel läuft. Die Implementierung des Proxys wird dann so abgeändert, dass er anhand einer Konfigurationsdatei die Socket Einstellungen der ausgehenden Verbindung anpasst. Es müssen also alle IP-Adressen der Webseiten in die Datei geschrieben werden, zu denen man eine *MPTCP-Verbindung* aufbauen möchte.
 Zusätzlich können einige Parameter dabei eingestellt werden. Wird dann vom Nutzer auf dem Endgerät der Proxy verwendet kann dieser stellvertretend eine *MPTCP-Verbindung* aufbauen. 
 Es wird also eine reguläre Verbindung zwischen Proxy und Nutzer aufgebaut und nur zwischen Proxy und Server wird das MPTCP-Protokoll verwendet. Damit dieser Aufbau sinnvoll angewendet werden kann, muss also das Bottleneck zwischen Proxy und Server liegen, da sonst keine Bandbreite gewonnen werden kann.  
 
@@ -54,9 +54,9 @@ Sobald beide Programme laufen, ist der Proxy für eine beliebige Maschine einsat
 Die REST Befehle lassen sich mit einer beliebigen Software (z.B. Postman oder Visual Studio Code) absetzen.  
 
 ## 2.4 Konfiguration der Verbindungen
-Um die Socket Optionen für ausgehende Verbindungen zu setzen verwendet der Proxy eine [Konfigurationsdatei](./res/mptcp_settings). Hier sind die einzelnen Einstellungen zu den zugehörigen Einstellungen abgespeichert. Eine Zeile beinhaltet 4 Werte jeweils mit einem Komma getrennt und abgeschlossen duch ein Komma. In der letzten Zeile des Dokuments muss immer noch ein Punkt stehen, um die letzte Zeile zu kennzeichnen.  
+Um die Socket Optionen für ausgehende Verbindungen zu setzen verwendet der Proxy eine [Konfigurationsdatei](./res/mptcp_settings). Hier sind die einzelnen Einstellungen zu den zugehörigen Einstellungen abgespeichert. Eine Zeile beinhaltet 4 Werte jeweils durch ein Komma getrennt und abgeschlossen mit einem Komma. In der letzten Zeile des Dokuments muss immer noch ein Punkt stehen, um die letzte Zeile zu kennzeichnen.  
 
-In einer Zeile steht an erster Stelle die **IP-Adresse** gefolgt von einer **1 oder 0**, je nach dem ob Multipath-TCP für diese Verbindung aktiviert werden soll (1) oder nicht (0). An dritter Stelle steht der Name des **Schedulers** der die Werte *default, roundrobin oder redundant* annehmen kann. Der letzte Wert definiert den **Path-Manager** und kann die Werte *default, fullmesh, ndiffports oder binder* annehmen.  
+Ein Datensatz besteht aus 4 Werten. An erster Stelle steht die **IP-Adresse** gefolgt von einer **1 oder 0**, je nach dem ob Multipath-TCP für diese Verbindung aktiviert werden soll (1) oder nicht (0). An dritter Stelle steht der Name des **Schedulers** der die Werte *default, roundrobin oder redundant* annehmen kann. Der letzte Wert definiert den **Path-Manager** und kann die Werte *default, fullmesh, ndiffports oder binder* annehmen.  
 
 Je nach bedarf ist es also auch möglich die Konfiguration einer Verbindung manuell in der Datei einzupflegen. Wege der Gefahr von flascher Formatierung oder Tippfehlern ist allerdings der Weg über das REST-Interface, wie in [3.3](#33-implementierung-der-rest-schnittstelle) beschrieben wird, zu bevorzugen.
 
