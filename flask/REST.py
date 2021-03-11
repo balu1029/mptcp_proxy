@@ -10,7 +10,7 @@ setting_temp={	"ip":"",
 		"scheduler":"",
 		"path_manager":""
 	  }
-file_path = "../res/mptcp_settings"
+file_path = "./res/mptcp_settings"
 api = Flask(__name__)
 
 @api.route('/resources', methods=['GET'])
