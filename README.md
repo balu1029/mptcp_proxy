@@ -28,14 +28,28 @@ Um den bereitgestellten Proxy mit MPTCP im vollen Umfang nutzen zu können muss 
 
 Eine detaillierte Anleitung dazu findet man [hier](multipath-tcp.org).
 
-Nachdem die Installation abgeschlossen ist, muss der Kernel im Normalfall jedes Mal manuell gestartet werden. Das kann man machen, indem man während des Neustarts des Betriebssystems im richtigen Moment die Taste **Shift** drückt, was den Grub Bootmanager öffnet. Wählt man dann den Punkt *Advanced Options for Ubuntu* aus, kann man den MPTCP-Kernel auswählen und starten. Wird das in einer virtuellen Maschine (VirtualBox) gemacht, merkt man einen Leistungseinbruch und eine verkleinerte Anzeige, das ändert allerdings nichts an der Funktionalität.
+Nachdem die Installation abgeschlossen ist, muss der Kernel im Normalfall jedes Mal manuell gestartet werden. Das kann man machen, indem man während des Neustarts des Betriebssystems im richtigen Moment die Taste **Shift** drückt, was den Grub Bootmanager öffnet. Wählt man dann den Punkt *Advanced Options for Ubuntu* aus, kann man den MPTCP-Kernel auswählen und starten. Wird das in einer virtuellen Maschine (VirtualBox) gemacht, merkt man einen Leistungseinbruch und eine verkleinerte Anzeige, das ändert allerdings nichts an der Funktionalität.  
+Ein weiterer Aspekt der in einer Virtuellen Maschine beachtet werden muss, ist das bei einer Netzwerkanbindung über NAT die MPTCP Pakete verändert und dadurch unbrauchbar werden. Eine funktionierende Alternative ist eine Anbindung der Netzwerschnittstelle(n) über eine Netzwerkbrücke.
 
-## 2.2 Starten der Programme
+## 2.2 Installation der Module
+Das Python Script für die REST-API benötigt einige Module, die teilweise nicht ganz intuitiv installiert werden können. Um alle notwendigen Module zu installieren, müssen folgende Befehle in einem Terminal ausgeführt werden:
+```
+sudo apt update
+sudo apt install python3
+sudo apt install python3-pip
+``` 
+Danach muss die virtuelle Umgebung mit `source flask/bin/activate` gestartet werden. Danach können die notwendigen Python-Module installiert werden:
+```
+sudo -H pip3 install flask
+sudo -H pip3 install https://github.com/rthalley/dnspython/archive/v1.15.0.zip
+```
+
+## 2.3 Starten der Programme
 Damit der Server voll funktionsfähig ist, müssen zwei Programme gestartet werden.  
 
-Erstens wird der eigentliche Socks-Proxy gestartet:  `./microsocks`. Sollte im Programm eine Änderung gemacht werden oder der Code noch nicht kompiliert sein, kann durch das Makefile einfach der Befehl `make microsocks` ausgeführt werden.  
+Erstens wird der eigentliche Socks-Proxy gestartet:  `sudo ./microsocks`. Sollte im Programm eine Änderung gemacht werden oder der Code noch nicht kompiliert sein, kann durch das Makefile einfach der Befehl `make microsocks` ausgeführt werden.  
 
-Zweitens muss der Server mit der REST API gestartet werden.  Im [Code](./flask/REST.py) muss allerdings in der letzten Zeile erst die IP-Adresse der eigenen Maschine eingetragen werden. Dann kann in einem neuen Terminal die virtuelle Umgebung mit dem Befehl `source flask/bin/activate` und der Server gestartet werden `python ./flask/REST.py` .  
+Zweitens muss der [Server](./flask/REST.py) mit der REST API gestartet werden.  Dafür muss in einem neuen Terminal die virtuelle Umgebung mit dem Befehl `source flask/bin/activate` und der Server gestartet werden `python3 ./flask/REST.py`. Wird der Server ohne Parameter gestartet hört er auf localhost:5000. Wenn von außerhalb auf das Interface zugegriffen werden soll, dann kann die lokale Adresse, auf der gehört werden soll, angegeben werden.  
 
 Sobald beide Programme laufen, ist der Proxy für eine beliebige Maschine einsatzbereit. Dafür muss in der entsprechenden Software (z.B. Firefox) einfach der Proxy in den Einstellungen aktiviert, die IP des Servers eingetragen und der Port 1080 angegeben werden.
 Die REST Befehle lassen sich mit einer beliebigen Software (z.B. Postman oder Visual Studio Code) absetzen.  
@@ -59,7 +73,7 @@ Wie schon oben beschrieben muss der Proxy nur insofern angepasst werden, dass er
 Für die Anpassung ist also der einzige Berührungspunkt die Datei in der die Verbindung zum Ziel aufgebaut wird, genauer die Stelle an der das Socket erstellt wird. Diese Implementierung ist in der Datei [sockssrv.c](./sockssrv.c) in der Methode *connect_socks_target* zu finden.
 An dieser Stelle wird dann die Datei eingelesen und die jeweiligen IP-Adressen in der Datei werden mit dem aktuellen Ziel verglichen. Wenn eine passende Adresse in der Datei gespeichert ist, dann werden die abgespeicherten Einstellungen verwendet. Gibt es keinen Treffer, dann werden die Standardeinstellungen verwendet. 
 
-## 3.3 Implementieren der REST Schnittstelle
+## 3.3 Implementierung der REST Schnittstelle
 Für die [Implementierung](./flask/REST.py) der REST-Schnittstelle wurde Python mit dem Framework Flask verwendet. Alles was das Programm machen muss, ist die verschiedenen Requests entgegenzuehmen und entsprechend zu Antworten und gegebenenfalls die Datei zu verändern. 
 Der Inhalt eines POST-Requests ist im JSON Format wie folgt:
 ```
