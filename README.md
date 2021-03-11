@@ -5,11 +5,10 @@ In Rahmen dieses Projekts wird es sich zu nutzen gemacht, dass es eine Implement
 ## 1.2. MPTCP
 Multipath-TCP ist ein Standart der Transportschicht beschrieben in [RFC 6824](https://tools.ietf.org/html/rfc6824). Es beschreibt die logische Zusammenfassungen mehrerer TCP Verbindungen zu einer, um die Bandbreite bestenfalls zu erhöhen. Dabei kann ausgenutzt werden, dass ein Endgerät mehrere verschiedene Netzwerkanbindungen besitzt um somit die Bandbreite der gesamten Verbindung auf annähernd die Summe der Bandbreite der einzelnen Anbindungen zu erhöhen. 
 
-<img src="./img/mptcp.png" width="600">
-
-*[Quelle](https://de.wikipedia.org/wiki/Multipath_TCP#/media/Datei:Architecture_des_r%C3%A9seaux_d'acc%C3%A8s_hybrides_avec_Multipath_TCP.png)*  
+<img src="./img/mptcp.png" width="600">    
 
 Die Grafik zeigt einen beispielhaften Aufbau einer *MPTCP-Verbindung* über DSL und LTE zum selben Server. Hier könnte also zum Beispiel eine Datei über beide Interfaces übertragen werden. 
+
 ## 1.3. Idee
 Um die Problematik mit den unterschiedlichen Betriebssystemen zu umgehen, soll hier ein Socks-Proxy so angepasst werden, dass er anhand einer Konfigurationsdatei die Socket Einstellungen anpasst. Es müssen also alle IP-Adressen der Webseiten in die Datei geschrieben werden, zu denen man eine *MPTCP-Verbindung* aufbauen möchte.
 Zusätzlich können einige Parameter dabei eingestellt werden. Wird dann vom Nutzer auf dem Endgerät der Proxy verwendet kann dieser stellvertretend eine *MPTCP-Verbindung* aufbauen. 
@@ -20,13 +19,13 @@ Um die Einstellungen am Server nicht nur statisch zu halten, kann die Konfigurat
 <div style="page-break-after: always;"></div>
 
 # 2. Inbetriebnahme
-## 2.1. Einrichten des Kernels
+## 2.1. Einrichtung des Kernels
 Um den bereitgestellten Proxy mit MPTCP im vollen Umfang nutzen zu können muss MPTCP installiert und eingerichtet werden. Dafür müssen folgende Schritte ausgeführt werden:
 - Installation des Kernels
 - Konfiguration der Routing Tabellen
 - Konfiguration der MPTCP Settings **(MPTCP_ENABLE Feld muss auf 2 gesetzt werden)**  
 
-Eine detaillierte Anleitung dazu findet man [hier](multipath-tcp.org).
+Eine detaillierte Anleitung dazu findet man [hier](http://www.multipath-tcp.org).
 
 Nachdem die Installation abgeschlossen ist, muss der Kernel im Normalfall jedes Mal manuell gestartet werden. Das kann man machen, indem man während des Neustarts des Betriebssystems im richtigen Moment die Taste **Shift** drückt, was den Grub Bootmanager öffnet. Wählt man dann den Punkt *Advanced Options for Ubuntu* aus, kann man den MPTCP-Kernel auswählen und starten. Wird das in einer virtuellen Maschine (VirtualBox) gemacht, merkt man einen Leistungseinbruch und eine verkleinerte Anzeige, das ändert allerdings nichts an der Funktionalität.  
 Ein weiterer Aspekt der in einer Virtuellen Maschine beachtet werden muss, ist das bei einer Netzwerkanbindung über NAT die MPTCP Pakete verändert und dadurch unbrauchbar werden. Eine funktionierende Alternative ist eine Anbindung der Netzwerschnittstelle(n) über eine Netzwerkbrücke.
@@ -54,6 +53,13 @@ Zweitens muss der [Server](./flask/REST.py) mit der REST API gestartet werden.  
 Sobald beide Programme laufen, ist der Proxy für eine beliebige Maschine einsatzbereit. Dafür muss in der entsprechenden Software (z.B. Firefox) einfach der Proxy in den Einstellungen aktiviert, die IP des Servers eingetragen und der Port 1080 angegeben werden.
 Die REST Befehle lassen sich mit einer beliebigen Software (z.B. Postman oder Visual Studio Code) absetzen.  
 
+## 2.4 Konfiguration der Verbindungen
+Um die Socket Optionen für ausgehende Verbindungen zu setzen verwendet der Proxy eine [Konfigurationsdatei](./res/mptcp_settings). Hier sind die einzelnen Einstellungen zu den zugehörigen Einstellungen abgespeichert. Eine Zeile beinhaltet 4 Werte jeweils mit einem Komma getrennt und abgeschlossen duch ein Komma. In der letzten Zeile des Dokuments muss immer noch ein Punkt stehen, um die letzte Zeile zu kennzeichnen.  
+
+In einer Zeile steht an erster Stelle die **IP-Adresse** gefolgt von einer **1 oder 0**, je nach dem ob Multipath-TCP für diese Verbindung aktiviert werden soll (1) oder nicht (0). An dritter Stelle steht der Name des **Schedulers** der die Werte *default, roundrobin oder redundant* annehmen kann. Der letzte Wert definiert den **Path-Manager** und kann die Werte *default, fullmesh, ndiffports oder binder* annehmen.  
+
+Je nach bedarf ist es also auch möglich die Konfiguration einer Verbindung manuell in der Datei einzupflegen. Wege der Gefahr von flascher Formatierung oder Tippfehlern ist allerdings der Weg über das REST-Interface, wie in [3.3](#33-implementierung-der-rest-schnittstelle) beschrieben wird, zu bevorzugen.
+
 <div style="page-break-after: always;"></div>
 
 # 3. Anpassungen an der Software 
@@ -66,7 +72,9 @@ Ein Auszug aus den Ergebnissen wird hier dargestellt:
 |:---------:|:--------:|
 |<img src="./img/no_proxy.png" width="400">|<img src="./img/proxy.png" width="400">|
 
-In dieser Stichprobe ist zu sehen, dass die CPU Auslastung sehr schwankend ist, aber mit aktivem Proxy kaum erhöht ist. Die Übertragungsrate ist in beiden Fällen in etwa bei 50Mbps, was der Bandbreite des Anschlusses entspricht. Durch die Messungen wurde festgestellt, dass durch die Verwendung des Proxys kein Einbruch der Verbindungsgeschwindigkeit merkbar ist. Auch die CPU Auslastung wird durch die Verwendung kaum erhöht.
+In dieser Stichprobe ist zu sehen, dass die CPU Auslastung sehr schwankend ist, aber mit aktivem Proxy kaum erhöht ist. Die Übertragungsrate ist in beiden Fällen in etwa bei 50Mbps, was der Bandbreite des Anschlusses entspricht. Durch die Messungen wurde festgestellt, dass durch die Verwendung des Proxys kein Einbruch der Verbindungsgeschwindigkeit merkbar ist. Auch die CPU Auslastung wird durch die Verwendung kaum erhöht.  
+
+Der Code des Proxys ist für alle Zwecke frei verwendbar. Die zugehörige Lizenz befindet sich [hier](./COPYING).
 
 ## 3.2 Anpassung des Proxys 
 Wie schon oben beschrieben muss der Proxy nur insofern angepasst werden, dass er aus einer Konfigurationsdatei die vorhergesehenen IP-Adresse - Konfiguaration Paare ausgelesen und für die entsprechenden Verbindungen gesetzt werden.
@@ -84,4 +92,5 @@ Der Inhalt eines POST-Requests ist im JSON Format wie folgt:
     "scheduler": "{default|roundrobin|redundant}"
 }
 ```
+
 

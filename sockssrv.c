@@ -217,11 +217,13 @@ static int connect_socks_target(unsigned char *buf, size_t n, struct client *cli
 		{
 			char pathManager[] = "binder";
 		}
-		printf("path Manager: %s\n", ptr);
+		//printf("path Manager: %s\n", ptr);
 		printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_ENABLED, &mptcpEnable, sizeof(mptcpEnable)));
-    	printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_SCHEDULER, scheduler, sizeof(scheduler)));
-    	printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_PATH_MANAGER, pathManager, sizeof(pathManager)));
+    		//printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_SCHEDULER, scheduler, sizeof(scheduler)));
+    		//printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_PATH_MANAGER, pathManager, sizeof(pathManager)));
 	}
+	
+	printf(errno);
 	
 
 	if(fd == -1) {
