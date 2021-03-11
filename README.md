@@ -38,14 +38,14 @@ sudo apt update
 sudo apt install python3
 sudo apt install python3-pip
 ``` 
-Danach muss die virtuelle Umgebung mit `source flask/bin/activate` gestartet werden. Danach können die notwendigen Python-Module installiert werden:
+Anschließend aktiviert man die virtuelle Umgebung mit `source flask/bin/activate`. Darin werden dann die notwendigen Python-Module installiert:
 ```
 sudo -H pip3 install flask
 sudo -H pip3 install https://github.com/rthalley/dnspython/archive/v1.15.0.zip
 ```
 
 ## 2.3 Starten der Programme
-Damit der Server voll funktionsfähig ist, müssen zwei Programme gestartet werden.  
+Um alle Funktionalitäten des Servers zu aktivieren, müssen zwei Programme gestartet werden.  
 
 Erstens wird der eigentliche Socks-Proxy gestartet:  `sudo ./microsocks`. Sollte im Programm eine Änderung gemacht werden oder der Code noch nicht kompiliert sein, kann durch das Makefile einfach der Befehl `make microsocks` ausgeführt werden.  
 
