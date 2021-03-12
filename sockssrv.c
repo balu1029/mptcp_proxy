@@ -156,20 +156,19 @@ static int connect_socks_target(unsigned char *buf, size_t n, struct client *cli
 	if(resolve(namebuf, port, &remote)) return -EC_GENERAL_FAILURE;
 	
 	int fd = socket(remote->ai_addr->sa_family, SOCK_STREAM, 0);
-	// open and red settings file
+	// open and read settings file
 	FILE *fp;
 	char file_buf[255];
 	char* ptr;
 	char ip[15];
 	
 
-	
+	// open and read config file line by line and check if ip fits to current destination
 	fp = fopen("./res/mptcp_settings","r");
 	do{
 		fgets(file_buf, 255, (FILE*)fp);
 		ptr = strtok(file_buf, ",");
 		memcpy(ip,ptr,15);
-		printf("read ip: %s\n", ip);
 	} while(strcmp(namebuf,ptr) != 0 && *ptr != '.');
 	fclose(fp);
 	
@@ -179,13 +178,11 @@ static int connect_socks_target(unsigned char *buf, size_t n, struct client *cli
 	int mptcpEnable = 0;
 	char scheduler[] = "default";
 	char pathManager[] = "default";
-	if(strcmp(ip,namebuf) == 0)
+	if(strcmp(ip,namebuf) == 0)					// did a entry in config file match to destination?
 	{
-		printf("found a fitting ip\n");
-		ptr = strtok(NULL,",");
+		ptr = strtok(NULL,",");					// read next chars until ',' -> enable flag 
 		mptcpEnable = *ptr - 48;
-		printf("MPTCP enabled: %d\n",mptcpEnable);
-		ptr = strtok(NULL,",");
+		ptr = strtok(NULL,",");					// scheduler
 		if(strcmp(ptr,"default") == 0)
 		{
 			char scheduler[] = "default";
@@ -198,9 +195,8 @@ static int connect_socks_target(unsigned char *buf, size_t n, struct client *cli
 		{
 			char scheduler[] = "redundant";
 		}
-		printf("scheduler: %s\n", ptr);
 		
-		ptr = strtok(NULL,",");
+		ptr = strtok(NULL,",");					// path manager
 		if(strcmp(ptr,"default") == 0)
 		{
 			char pathManager[] = "default";
@@ -217,13 +213,12 @@ static int connect_socks_target(unsigned char *buf, size_t n, struct client *cli
 		{
 			char pathManager[] = "binder";
 		}
-		//printf("path Manager: %s\n", ptr);
+
+		// set the three socket options like intentioned by the config file
 		printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_ENABLED, &mptcpEnable, sizeof(mptcpEnable)));
-    		//printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_SCHEDULER, scheduler, sizeof(scheduler)));
-    		//printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_PATH_MANAGER, pathManager, sizeof(pathManager)));
+    	printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_SCHEDULER, scheduler, sizeof(scheduler)));
+    	printf("set socket option: %d\n",setsockopt(fd, SOL_TCP, MPTCP_PATH_MANAGER, pathManager, sizeof(pathManager)));
 	}
-	
-	printf(errno);
 	
 
 	if(fd == -1) {
