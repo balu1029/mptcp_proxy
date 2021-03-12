@@ -7,7 +7,6 @@
 
 
 int resolve(const char *host, unsigned short port, struct addrinfo** addr) {
-	printf("server.c - resolve\n");
 	struct addrinfo hints = {
 		.ai_family = AF_UNSPEC,
 		.ai_socktype = SOCK_STREAM,
@@ -19,7 +18,6 @@ int resolve(const char *host, unsigned short port, struct addrinfo** addr) {
 }
 
 int resolve_sa(const char *host, unsigned short port, union sockaddr_union *res) {
-	printf("server.c - resolve_sa\n");
 	struct addrinfo *ainfo = 0;
 	int ret;
 	SOCKADDR_UNION_AF(res) = AF_UNSPEC;
@@ -30,7 +28,6 @@ int resolve_sa(const char *host, unsigned short port, union sockaddr_union *res)
 }
 
 int bindtoip(int fd, union sockaddr_union *bindaddr) {
-	printf("server.c - bindtoip\n");
 	socklen_t sz = SOCKADDR_UNION_LENGTH(bindaddr);
 	if(sz)
 		return bind(fd, (struct sockaddr*) bindaddr, sz);
@@ -38,13 +35,11 @@ int bindtoip(int fd, union sockaddr_union *bindaddr) {
 }
 
 int server_waitclient(struct server *server, struct client* client) {
-	printf("server.c - waitclient\n");
 	socklen_t clen = sizeof client->addr;
 	return ((client->fd = accept(server->fd, (void*)&client->addr, &clen)) == -1)*-1;
 }
 
 int server_setup(struct server *server, const char* listenip, unsigned short port) {
-	printf("server.c - setup\n");
 	struct addrinfo *ainfo = 0;
 	if(resolve(listenip, port, &ainfo)) return -1;
 	struct addrinfo* p;

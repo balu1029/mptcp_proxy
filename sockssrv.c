@@ -117,7 +117,6 @@ static void dolog(const char* fmt, ...) { }
 #endif
 
 static int connect_socks_target(unsigned char *buf, size_t n, struct client *client) {
-	printf("sockssrv.c - connect_socks_target\n");
 	if(n < 5) return -EC_GENERAL_FAILURE;
 	if(buf[0] != 5) return -EC_GENERAL_FAILURE;
 	if(buf[1] != 1) return -EC_COMMAND_NOT_SUPPORTED; /* we support only CONNECT method */
@@ -265,7 +264,6 @@ static int connect_socks_target(unsigned char *buf, size_t n, struct client *cli
 }
 
 static int is_authed(union sockaddr_union *client, union sockaddr_union *authedip) {
-	printf("sockssrv.c - is_authed\n");
 	int af = SOCKADDR_UNION_AF(authedip);
 	if(af == SOCKADDR_UNION_AF(client)) {
 		size_t cmpbytes = af == AF_INET ? 4 : 16;
@@ -277,7 +275,6 @@ static int is_authed(union sockaddr_union *client, union sockaddr_union *authedi
 }
 
 static int is_in_authed_list(union sockaddr_union *caddr) {
-	printf("sockssrv.c - is_in_authed_list\n");
 	size_t i;
 	for(i=0;i<sblist_getsize(auth_ips);i++)
 		if(is_authed(caddr, sblist_get(auth_ips, i)))
@@ -286,12 +283,10 @@ static int is_in_authed_list(union sockaddr_union *caddr) {
 }
 
 static void add_auth_ip(union sockaddr_union *caddr) {
-	printf("sockssrv.c - add_auth_ip\n");
 	sblist_add(auth_ips, caddr);
 }
 
 static enum authmethod check_auth_method(unsigned char *buf, size_t n, struct client*client) {
-	printf("sockssrv.c - authmethod_check_auth_method\n");
 	if(buf[0] != 5) return AM_INVALID;
 	size_t idx = 1;
 	if(idx >= n ) return AM_INVALID;
@@ -318,7 +313,6 @@ static enum authmethod check_auth_method(unsigned char *buf, size_t n, struct cl
 }
 
 static void send_auth_response(int fd, int version, enum authmethod meth) {
-	printf("sockssrv.c - send_auth_response\n");
 	unsigned char buf[2];
 	buf[0] = version;
 	buf[1] = meth;
@@ -326,7 +320,6 @@ static void send_auth_response(int fd, int version, enum authmethod meth) {
 }
 
 static void send_error(int fd, enum errorcode ec) {
-	printf("sockssrv.c - send_error\n");
 	/* position 4 contains ATYP, the address type, which is the same as used in the connect
 	   request. we're lazy and return always IPV4 address type in errors. */
 	char buf[10] = { 5, ec, 0, 1 /*AT_IPV4*/, 0,0,0,0, 0,0 };
@@ -334,7 +327,6 @@ static void send_error(int fd, enum errorcode ec) {
 }
 
 static void copyloop(int fd1, int fd2) {
-	printf("sockssrv.c - copy_loop\n");
 	struct pollfd fds[2] = {
 		[0] = {.fd = fd1, .events = POLLIN},
 		[1] = {.fd = fd2, .events = POLLIN},
@@ -367,7 +359,6 @@ static void copyloop(int fd1, int fd2) {
 }
 
 static enum errorcode check_credentials(unsigned char* buf, size_t n) {
-	printf("sockssrv.c - check_credentials\n");
 	if(n < 5) return EC_GENERAL_FAILURE;
 	if(buf[0] != 1) return EC_GENERAL_FAILURE;
 	unsigned ulen, plen;
@@ -385,7 +376,6 @@ static enum errorcode check_credentials(unsigned char* buf, size_t n) {
 }
 
 static void* clientthread(void *data) {
-	printf("sockssrv.c - clientthread\n");
 	struct thread *t = data;
 	t->state = SS_1_CONNECTED;
 	unsigned char buf[1024];
@@ -439,7 +429,6 @@ breakloop:
 }
 
 static void collect(sblist *threads) {
-	printf("sockssrv.c - collect\n");
 	size_t i;
 	for(i=0;i<sblist_getsize(threads);) {
 		struct thread* thread = *((struct thread**)sblist_get(threads, i));
@@ -453,7 +442,6 @@ static void collect(sblist *threads) {
 }
 
 static int usage(void) {
-	printf("sockssrv.c - usage\n");
 	dprintf(2,
 		"MicroSocks SOCKS5 Server\n"
 		"------------------------\n"
@@ -473,13 +461,11 @@ static int usage(void) {
 
 /* prevent username and password from showing up in top. */
 static void zero_arg(char *s) {
-	printf("sockssrv.c - zero_arg\n");
 	size_t i, l = strlen(s);
 	for(i=0;i<l;i++) s[i] = 0;
 }
 
 int main(int argc, char** argv) {
-	printf("sockssrv.c - main\n");
 	int ch;
 	const char *listenip = "0.0.0.0";
 	unsigned port = 1080;
