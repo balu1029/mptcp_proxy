@@ -5,16 +5,19 @@ In Rahmen dieses Projekts wird es sich zu nutzen gemacht, dass es eine Implement
 ## 1.2. MPTCP
 Multipath-TCP ist ein Standart der Transportschicht beschrieben in [RFC 6824](https://tools.ietf.org/html/rfc6824). Es beschreibt die logische Zusammenfassungen mehrerer TCP Verbindungen zu einer, um die Bandbreite bestenfalls zu erhöhen. Dabei kann ausgenutzt werden, dass ein Endgerät mehrere verschiedene Netzwerkanbindungen besitzt um somit die Bandbreite der gesamten Verbindung auf annähernd die Summe der Bandbreite der einzelnen Anbindungen zu erhöhen. 
 
-<img src="./img/mptcp.png" width="600">    
+<img src="./img/mptcp.png" width="800">    
 
 Die Grafik zeigt einen beispielhaften Aufbau einer *MPTCP-Verbindung* über DSL und LTE zum selben Server. Hier könnte also zum Beispiel eine Datei über beide Interfaces übertragen werden. 
 
 ## 1.3. Idee
 damit nicht auf jedem Endgerät einen Multipath-TCP Kernel installiert werden muss um eine *MPTCP-Verbindung* aufzubauen, soll hier ein Socks-Proxy verwendet werden, der auf einem Linux Betriebssystem mit entsprechend installiertem MPTCP-Kernel läuft. Die Implementierung des Proxys wird dann so abgeändert, dass er anhand einer Konfigurationsdatei die Socket Einstellungen der ausgehenden Verbindung anpasst. Es müssen also alle IP-Adressen der Webseiten in die Datei geschrieben werden, zu denen man eine *MPTCP-Verbindung* aufbauen möchte.
 Zusätzlich können einige Parameter dabei eingestellt werden. Wird dann vom Nutzer auf dem Endgerät der Proxy verwendet kann dieser stellvertretend eine *MPTCP-Verbindung* aufbauen. 
-Es wird also eine reguläre Verbindung zwischen Proxy und Nutzer aufgebaut und nur zwischen Proxy und Server wird das MPTCP-Protokoll verwendet. Damit dieser Aufbau sinnvoll angewendet werden kann, muss also das Bottleneck zwischen Proxy und Server liegen, da sonst keine Bandbreite gewonnen werden kann.  
+Es wird also eine reguläre Verbindung zwischen Proxy und Nutzer aufgebaut und nur zwischen Proxy und Server wird das MPTCP-Protokoll verwendet. Hierdurch wird es nicht mehr relevant, auf welchem Betriebssystem das Endgerät läuft und es muss auch keine zusätliche Software installiert werden. Damit dieser Aufbau sinnvoll angewendet werden kann, muss also das Bottleneck zwischen Proxy und Server liegen, da sonst keine Bandbreite gewonnen werden kann.  
 
 Um die Einstellungen am Server nicht nur statisch zu halten, kann die Konfigurationsdatei mithilfe einer REST-API manipuliert werden. Es ist also möglich zur Laufzeit Einstellungen von Verbindungen zu verändern. Eine solche Änderung wird allerdings erst ab der nächsten Verbindung zum angegebenen Ziel wirksam, da ein aktiver Socket nicht mehr verändert werden kann.  
+
+Die Funktionalität ist auch in der folgenden Graphik dargestellt:
+<img src="./img/project_setup.png" width="800">  
 
 <div style="page-break-after: always;"></div>
 
