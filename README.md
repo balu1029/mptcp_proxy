@@ -49,7 +49,7 @@ Zuletzt muss noch die Einstellung *MPTCP_ENABLE* auf 2 gesetzt werden, was bedeu
 ```
 sudo sysctl -w net.mptcp.mptcp_enabled=2
 ```
-  
+An dieser Stelle ist ein Neustart erforderlich, um die Änderungen wirksam zu machen und den richtigen Kernel zu starten.  
   
 Nachdem die Installation abgeschlossen ist, muss der Kernel im Normalfall jedes Mal manuell gestartet werden. Das kann man machen, indem man während des Neustarts des Betriebssystems im richtigen Moment die Taste **Shift** drückt, was den Grub Bootmanager öffnet. Wählt man dann den Punkt *Advanced Options for Ubuntu* aus, kann man den MPTCP-Kernel auswählen und starten. Wird das in einer virtuellen Maschine (VirtualBox) gemacht, merkt man einen Leistungseinbruch und eine verkleinerte Anzeige, das ändert allerdings nichts an der Funktionalität.  
 Ein weiterer Aspekt der in einer Virtuellen Maschine beachtet werden muss, ist das bei einer Netzwerkanbindung über NAT die MPTCP Pakete verändert und dadurch unbrauchbar werden. Eine funktionierende Alternative ist eine Anbindung der Netzwerschnittstelle(n) über eine Netzwerkbrücke.
