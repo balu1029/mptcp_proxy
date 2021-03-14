@@ -12,7 +12,7 @@ Die Grafik zeigt einen beispielhaften Aufbau einer *MPTCP-Verbindung* über DSL 
 ## 1.3. Idee
 damit nicht auf jedem Endgerät einen Multipath-TCP Kernel installiert werden muss um eine *MPTCP-Verbindung* aufzubauen, soll hier ein Socks-Proxy verwendet werden, der auf einem Linux Betriebssystem mit entsprechend installiertem MPTCP-Kernel läuft. Die Implementierung des Proxys wird dann so abgeändert, dass er anhand einer Konfigurationsdatei die Socket Einstellungen der ausgehenden Verbindung anpasst. Es müssen also alle IP-Adressen der Webseiten in die Datei geschrieben werden, zu denen man eine *MPTCP-Verbindung* aufbauen möchte.
 Zusätzlich können einige Parameter dabei eingestellt werden. Wird dann vom Nutzer auf dem Endgerät der Proxy verwendet kann dieser stellvertretend eine *MPTCP-Verbindung* aufbauen. 
-Es wird also eine reguläre Verbindung zwischen Proxy und Nutzer aufgebaut und nur zwischen Proxy und Server wird das MPTCP-Protokoll verwendet. Hierdurch wird es nicht mehr relevant, auf welchem Betriebssystem das Endgerät läuft und es muss auch keine zusätliche Software installiert werden. Damit dieser Aufbau sinnvoll angewendet werden kann, muss also das Bottleneck zwischen Proxy und Server liegen, da sonst keine Bandbreite gewonnen werden kann.  
+Es wird also eine reguläre Verbindung zwischen Proxy und Nutzer aufgebaut und nur zwischen Proxy und Server wird das MPTCP-Protokoll verwendet. Hierdurch wird es nicht mehr relevant, auf welchem Betriebssystem das Endgerät läuft und es muss auch keine zusätzliche Software installiert werden. Damit dieser Aufbau sinnvoll angewendet werden kann, muss also das Bottleneck zwischen Proxy und Server liegen, da sonst keine Bandbreite gewonnen werden kann.  
 
 Um die Einstellungen am Server nicht nur statisch zu halten, kann die Konfigurationsdatei mithilfe einer REST-API manipuliert werden. Es ist also möglich zur Laufzeit Einstellungen von Verbindungen zu verändern. Eine solche Änderung wird allerdings erst ab der nächsten Verbindung zum angegebenen Ziel wirksam, da ein aktiver Socket nicht mehr verändert werden kann.  
 
@@ -82,13 +82,13 @@ Um die Socket Optionen für ausgehende Verbindungen zu setzen verwendet der Prox
 
 Ein Datensatz besteht aus 4 Werten. An erster Stelle steht die **IP-Adresse** gefolgt von einer **1 oder 0**, je nach dem ob Multipath-TCP für diese Verbindung aktiviert werden soll (1) oder nicht (0). An dritter Stelle steht der Name des **Schedulers** der die Werte *default, roundrobin oder redundant* annehmen kann. Der letzte Wert definiert den **Path-Manager** und kann die Werte *default, fullmesh, ndiffports oder binder* annehmen.  
 
-Je nach bedarf ist es also auch möglich die Konfiguration einer Verbindung manuell in der Datei einzupflegen. Wege der Gefahr von flascher Formatierung oder Tippfehlern ist allerdings der Weg über das REST-Interface, wie in [3.3](#33-implementierung-der-rest-schnittstelle) beschrieben wird, zu bevorzugen.
+Je nach Bedarf ist es also auch möglich die Konfiguration einer Verbindung manuell in der Datei einzupflegen. Wege der Gefahr von falscher Formatierung oder Tippfehlern ist allerdings der Weg über das REST-Interface, wie in [3.3](#33-implementierung-der-rest-schnittstelle) beschrieben wird, zu bevorzugen.
 
 <div style="page-break-after: always;"></div>
 
 # 3. Anpassungen an der Software 
 ## 3.1 Auswahl des Proxys
-Im Rahmen des Projektes war das Ziel nicht einen eigenen Proxy zu schreiben, sondern nur einen geegneten zu finden und diesen so weit zu verändern, dass die Beschriebene Funktionalität umgesetzt werden kann. Es wurde also eine Implementierung gesucht, die so wenig ovehead wie möglich produziert und somit - wenn möglich - keinen Einfluss auf die Übertragungsgeschwindigkeit nimmt. Außerdem war ein weiteres essentielles Kriterium, dass es in der Implementierung gut möglich ist die Socket Parameter einzustellen.  
+Im Rahmen des Projektes war das Ziel nicht einen eigenen Proxy zu schreiben, sondern nur einen geeigneten zu finden und diesen so weit zu verändern, dass die Beschriebene Funktionalität umgesetzt werden kann. Es wurde also eine Implementierung gesucht, die so wenig Overhead wie möglich produziert und somit - wenn möglich - keinen Einfluss auf die Übertragungsgeschwindigkeit nimmt. Außerdem war ein weiteres essentielles Kriterium, dass es in der Implementierung gut möglich ist die Socket Parameter einzustellen.  
 
 Die Wahl fiel schlussendlich auf den sogenannten [microsocks](https://github.com/rofl0r/microsocks), der durch einen relativ kurzen C-Code sehr übersichtlich ist. Um sicherzustellen, dass auch die Performance zufriedenstellend ist wurden noch einige Tests gemacht. Dafür wurde je eine ca. 300MB große Datei heruntergeladen, einmal mit Proxy und einmal ohne und die CPU Auslastung wurde gegenübergestellt.
 Ein Auszug aus den Ergebnissen wird hier dargestellt:
@@ -101,12 +101,12 @@ In dieser Stichprobe ist zu sehen, dass die CPU Auslastung sehr schwankend ist, 
 Der Code des Proxys ist für alle Zwecke frei verwendbar. Die zugehörige Lizenz befindet sich [hier](./COPYING).
 
 ## 3.2 Anpassung des Proxys 
-Wie schon oben beschrieben muss der Proxy nur insofern angepasst werden, dass er aus einer Konfigurationsdatei die vorhergesehenen IP-Adresse - Konfiguaration Paare ausgelesen und für die entsprechenden Verbindungen gesetzt werden.
+Wie schon oben beschrieben muss der Proxy nur insofern angepasst werden, dass er aus einer Konfigurationsdatei die vorhergesehenen IP-Adresse - Konfiguration Paare ausgelesen und für die entsprechenden Verbindungen gesetzt werden.
 Für die Anpassung ist also der einzige Berührungspunkt die Datei in der die Verbindung zum Ziel aufgebaut wird, genauer die Stelle an der das Socket erstellt wird. Diese Implementierung ist in der Datei [sockssrv.c](./sockssrv.c) in der Methode *connect_socks_target* zu finden.
 An dieser Stelle wird dann die Datei eingelesen und die jeweiligen IP-Adressen in der Datei werden mit dem aktuellen Ziel verglichen. Wenn eine passende Adresse in der Datei gespeichert ist, dann werden die abgespeicherten Einstellungen verwendet. Gibt es keinen Treffer, dann werden die Standardeinstellungen verwendet. 
 
 ## 3.3 Implementierung der REST Schnittstelle
-Für die [Implementierung](./flask/REST.py) der REST-Schnittstelle wurde Python mit dem Framework Flask verwendet. Alles was das Programm machen muss, ist die verschiedenen Requests entgegenzuehmen und entsprechend zu Antworten und gegebenenfalls die Datei zu verändern. 
+Für die [Implementierung](./flask/REST.py) der REST-Schnittstelle wurde Python mit dem Framework Flask verwendet. Alles was das Programm machen muss, ist die verschiedenen Requests entgegenzunehmen und entsprechend zu Antworten und gegebenenfalls die Datei zu verändern. 
 Der Inhalt eines POST-Requests ist im JSON Format wie folgt:
 ```
 {
