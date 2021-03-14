@@ -34,7 +34,7 @@ def post_resource():
   double = False
   req = request.get_json()
   resources.clear()
-  result = dns.resolver.resolve(req["ip"].strip(), 'A') # resolve the posted dns name to a (or many) ip-addresses
+  result = dns.resolver.query(req["ip"].strip(), 'A') # resolve the posted dns name to a (or many) ip-addresses
   
   file = open(file_path, "r")
   for line in file:
