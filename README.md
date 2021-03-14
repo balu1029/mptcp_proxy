@@ -28,8 +28,29 @@ Um den bereitgestellten Proxy mit MPTCP im vollen Umfang nutzen zu können muss 
 - Konfiguration der Routing Tabellen
 - Konfiguration der MPTCP Settings **(MPTCP_ENABLE Feld muss auf 2 gesetzt werden)**  
 
-Eine detaillierte Anleitung dazu findet man [hier](http://www.multipath-tcp.org).
+Eine detaillierte Anleitung dazu findet man [hier](http://www.multipath-tcp.org).  
 
+Die Schritte für die minimale Konfiguration sind nachfolgend aufgeführt.
+Die Installation des Kernels an sich lässt sich einfach durch das apt-Repository durchführen:
+```
+sudo apt-key adv --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 379CE192D401AB61
+sudo sh -c "echo 'deb https://dl.bintray.com/multipath-tcp/mptcp_deb stable main' > /etc/apt/sources.list.d/mptcp.list"
+sudo apt-get update
+sudo apt-get install linux-mptcp
+```
+Nachdem der Kernel an sich installiert ist werden für die automatische Konfiguration noch 2 Dateien benötigt, die man mit den folgenden Befehlen an die richtige Stelle herunterladen und ausführbar machen kann:
+```
+sudo wget https://raw.githubusercontent.com/multipath-tcp/mptcp-scripts/master/scripts/rt_table/mptcp_up -O /etc/network/if-up.d/mptcp_up
+sudo chmod +rwx /etc/network/if-up.d/mptcp_up
+sudo wget https://raw.githubusercontent.com/multipath-tcp/mptcp-scripts/master/scripts/rt_table/mptcp_down -O /etc/network/if-post-down.d/mptcp_down
+sudo chmod +rwx /etc/network/if-post-down.d/mptcp_down
+```
+Zuletzt muss noch die Einstellung *MPTCP_ENABLE* auf 2 gesetzt werden, was bedeutet, dass MPTCP für jeden Socket aktiviert ist, der es aktiv setzt:
+```
+sudo sysctl -w net.mptcp.mptcp_enabled=2
+```
+  
+  
 Nachdem die Installation abgeschlossen ist, muss der Kernel im Normalfall jedes Mal manuell gestartet werden. Das kann man machen, indem man während des Neustarts des Betriebssystems im richtigen Moment die Taste **Shift** drückt, was den Grub Bootmanager öffnet. Wählt man dann den Punkt *Advanced Options for Ubuntu* aus, kann man den MPTCP-Kernel auswählen und starten. Wird das in einer virtuellen Maschine (VirtualBox) gemacht, merkt man einen Leistungseinbruch und eine verkleinerte Anzeige, das ändert allerdings nichts an der Funktionalität.  
 Ein weiterer Aspekt der in einer Virtuellen Maschine beachtet werden muss, ist das bei einer Netzwerkanbindung über NAT die MPTCP Pakete verändert und dadurch unbrauchbar werden. Eine funktionierende Alternative ist eine Anbindung der Netzwerschnittstelle(n) über eine Netzwerkbrücke.
 
