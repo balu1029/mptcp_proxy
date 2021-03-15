@@ -21,7 +21,6 @@ static void sblist_clear(sblist* l) {
 }
 
 void sblist_init(sblist* l, size_t itemsize, size_t blockitems) {
-	printf("sblist.c - sblist_init\n");
 	if(l) {
 		l->blockitems = blockitems ? blockitems : MY_PAGE_SIZE / itemsize;
 		l->itemsize = itemsize;
@@ -30,7 +29,6 @@ void sblist_init(sblist* l, size_t itemsize, size_t blockitems) {
 }
 
 void sblist_free_items(sblist* l) {
-	printf("sblist.c - sblist_free_items\n");
 	if(l) {
 		if(l->items) free(l->items);
 		sblist_clear(l);
@@ -38,7 +36,6 @@ void sblist_free_items(sblist* l) {
 }
 
 void sblist_free(sblist* l) {
- 	printf("sblist.c - sblist_free\n");
 	if(l) {
 		sblist_free_items(l);
 		free(l);
@@ -46,25 +43,21 @@ void sblist_free(sblist* l) {
 }
 
 char* sblist_item_from_index(sblist* l, size_t idx) {
-	printf("sblist.c - sblist_item_from_index\n");
 	return l->items + (idx * l->itemsize);
 }
 
 void* sblist_get(sblist* l, size_t item) {
-	printf("sblist.c - sblist_get\n");
 	if(item < l->count) return (void*) sblist_item_from_index(l, item);
 	return NULL;
 }
 
 int sblist_set(sblist* l, void* item, size_t pos) {
-	printf("sblist.c - sblist_set\n");
 	if(pos >= l->count) return 0;
 	memcpy(sblist_item_from_index(l, pos), item, l->itemsize);
 	return 1;
 }
 
 int sblist_grow_if_needed(sblist* l) {
-	printf("sblist.c - sblist_grow_if_needed\n");
 	char* temp;
 	if(l->count == l->capa) {
 		temp = realloc(l->items, (l->capa + l->blockitems) * l->itemsize);
@@ -76,7 +69,6 @@ int sblist_grow_if_needed(sblist* l) {
 }
 
 int sblist_add(sblist* l, void* item) {
-	printf("sblist.c - sblist_add\n");
 	if(!sblist_grow_if_needed(l)) return 0;
 	l->count++;
 	return sblist_set(l, item, l->count - 1);
