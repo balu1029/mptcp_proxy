@@ -14,7 +14,6 @@ sblist* sblist_new(size_t itemsize, size_t blockitems) {
 }
 
 static void sblist_clear(sblist* l) {
-	printf("sblist.c - sblist_clear\n");
 	l->items = NULL;
 	l->capa = 0;
 	l->count = 0;
