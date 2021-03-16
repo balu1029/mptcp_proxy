@@ -99,6 +99,7 @@ Ein Auszug aus den Ergebnissen wird hier dargestellt:
 |Ohne Proxy | Mit Proxy|
 |:---------:|:--------:|
 |<img src="./img/no_proxy.png" width="400">|<img src="./img/proxy.png" width="400">|
+
 *Abb. 3: Messergebnisse mit und ohne microsocks-proxy*
 
 In dieser Stichprobe ist zu sehen, dass die CPU Auslastung sehr schwankend, aber mit aktivem Proxy kaum erhöht ist. Die Übertragungsrate ist in beiden Fällen in etwa bei 50Mbps, was der Bandbreite des Anschlusses entspricht. Durch die Messungen wurde festgestellt, dass durch die Verwendung des Proxys kein Einbruch der Verbindungsgeschwindigkeit merkbar ist. Auch die CPU Auslastung wird durch die Verwendung kaum erhöht.  
